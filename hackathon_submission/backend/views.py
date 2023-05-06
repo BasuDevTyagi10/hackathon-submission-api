@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 from .models import Hackathon, Enrollment, Submission
 from .serializers import (
     UserSerializer,
@@ -144,6 +146,38 @@ class UserEnrolledHackathonSubmissionsAPIView(generics.ListAPIView):
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class EnrolledUserListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            enrolled_users_id = Enrollment.objects.values_list('user', flat=True).distinct()
+            users = get_user_model().objects.filter(id__in=enrolled_users_id)
+            serialized_data = UserSerializer(users, many=True).data
+            return Response(serialized_data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'error': 'You are not authorized to view this resource.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+class UnenrolledUserListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated and self.request.user.is_staff:
+            enrolled_users_id = Enrollment.objects.values_list('user', flat=True).distinct()
+            users = get_user_model().objects.exclude(id__in=enrolled_users_id)
+            serialized_data = UserSerializer(users, many=True).data
+            return Response(serialized_data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'error': 'You are not authorized to view this resource.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
 
 class HackathonCreateAPIView(generics.CreateAPIView):

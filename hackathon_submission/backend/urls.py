@@ -7,6 +7,8 @@ from .views import (
     UserEnrolledHackathonSubmissionAPIView,
     UserEnrolledHackathonSubmissionsAPIView,
     UserListAPIView,
+    EnrolledUserListAPIView,
+    UnenrolledUserListAPIView,
     HackathonCreateAPIView,
     HackathonRetrieveAPIView,
     HackathonRegisterAPIView,
@@ -27,6 +29,9 @@ urlpatterns = [
     path('user/<str:username>/hackathon/<str:hackathon_id>/submission/<str:submission_id>', UserEnrolledHackathonSubmissionAPIView.as_view(), name='user-enrolled-hackathon-submissions'),
     path('user/<str:username>/hackathons/submissions/', UserEnrolledHackathonSubmissionsAPIView.as_view(), name='user-enrolled-hackathons-submissions'),
     path('users/', UserListAPIView.as_view(), name='user-list'),
+
+    path('enrolled-users/', EnrolledUserListAPIView.as_view(), name='enrolled-user-list'),
+    path('unenrolled-users/', UnenrolledUserListAPIView.as_view(), name='unenrolled-user-list'),
     
     path('hackathon', HackathonCreateAPIView.as_view(), name='hackathon-create'),
     path('hackathon/<str:id>/', HackathonRetrieveAPIView.as_view(), name='hackathon-retrieve'),
